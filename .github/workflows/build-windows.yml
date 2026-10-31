@@ -25,6 +25,11 @@ jobs:
           if (-not (Test-Path (Join-Path $project "CMakeLists.txt"))) {
             throw "CMakeLists.txt not found in source archive."
           }
+          $processor = Join-Path $project "Source/PluginProcessor.cpp"
+          $code = Get-Content $processor -Raw
+          $code = $code.Replace("juce::AudioParameterFloat* floatParam", "std::unique_ptr<juce::AudioParameterFloat> floatParam")
+          $code = $code.Replace("return new juce::AudioParameterFloat (", "return std::make_unique<juce::AudioParameterFloat> (")
+          Set-Content -Path $processor -Value $code -Encoding utf8
           "PROJECT_DIR=$project" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure CMake
