@@ -28,14 +28,14 @@ jobs:
           $processor = Join-Path $project "Source/PluginProcessor.cpp"
           $code = Get-Content $processor -Raw
           $helper = @'
-    std::unique_ptr<juce::AudioParameterFloat> floatParam (const juce::String& id, const juce::String& name,
-                                           float min, float max, float def,
-                                           juce::String suffix = {})
-    {
-        return std::unique_ptr<juce::AudioParameterFloat> (
-            new juce::AudioParameterFloat (juce::ParameterID { id, 1 }, name,
-                juce::NormalisableRange<float> (min, max), def, suffix));
-    }
+              std::unique_ptr<juce::AudioParameterFloat> floatParam (const juce::String& id, const juce::String& name,
+                                                     float min, float max, float def,
+                                                     juce::String suffix = {})
+              {
+                  return std::unique_ptr<juce::AudioParameterFloat> (
+                      new juce::AudioParameterFloat (juce::ParameterID { id, 1 }, name,
+                          juce::NormalisableRange<float> (min, max), def, suffix));
+              }
           '@
           $code = [regex]::Replace($code, '(?ms)^    juce::AudioParameterFloat\* floatParam\s*\(.*?^    \}', $helper)
           Set-Content -Path $processor -Value $code -Encoding utf8
