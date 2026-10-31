@@ -1,0 +1,41 @@
+name: Build STATIC CRT VST3 (Windows x64)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract source archive
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "STATIC_CRT_v1.0_source.zip")) {
+            throw "Upload STATIC_CRT_v1.0_source.zip to the repository root first."
+          }
+          Expand-Archive -Path "STATIC_CRT_v1.0_source.zip" -DestinationPath "source" -Force
+          $project = Join-Path $PWD "source/STATIC_CRT"
+          if (-not (Test-Path (Join-Path $project "CMakeLists.txt"))) {
+            throw "CMakeLists.txt not found in source archive."
+          }
+          "PROJECT_DIR=$project" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Configure CMake
+        run: cmake -S "${{ env.PROJECT_DIR }}" -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VST3
+        run: cmake --build build --config Release --target STATICCRT_VST3 --parallel
+
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: STATIC-CRT-VST3-Windows-x64
+          path: build/STATICCRT_artefacts/Release/VST3/STATIC CRT.vst3
+          if-no-files-found: error
