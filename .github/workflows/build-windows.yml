@@ -36,7 +36,7 @@ jobs:
             new juce::AudioParameterFloat (juce::ParameterID { id, 1 }, name,
                 juce::NormalisableRange<float> (min, max), def, suffix));
     }
-'@
+          '@
           $code = [regex]::Replace($code, '(?ms)^    juce::AudioParameterFloat\* floatParam\s*\(.*?^    \}', $helper)
           Set-Content -Path $processor -Value $code -Encoding utf8
           "PROJECT_DIR=$project" | Out-File -FilePath $env:GITHUB_ENV -Append
