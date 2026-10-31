@@ -29,6 +29,7 @@ jobs:
           $code = Get-Content $processor -Raw
           $code = $code.Replace("juce::AudioParameterFloat* floatParam", "std::unique_ptr<juce::AudioParameterFloat> floatParam")
           $code = $code.Replace("return new juce::AudioParameterFloat (", "return std::make_unique<juce::AudioParameterFloat> (")
+          $code = [regex]::Replace($code, "(std::make_unique<juce::AudioParameterFloat>\s*\()\s*\{", "$1juce::ParameterID{")
           Set-Content -Path $processor -Value $code -Encoding utf8
           "PROJECT_DIR=$project" | Out-File -FilePath $env:GITHUB_ENV -Append
 
